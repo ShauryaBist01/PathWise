@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>PathFinder | Dijkstra</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <div class="logo">
+                PATHFINDER
+            </div>
+
+            <div class="subtitle">
+                Shortest Path Visualization
+            </div>
+
+            <div class="algorithm-badge">
+                DIJKSTRA'S ALGORITHM
+            </div>
+
+        </header>
+
+
+        <!-- CONTROL PANEL -->
+
+        <section class="controls">
+
+            <div class="control-group">
+
+                <label for="start">
+                    STARTING LOCATION
+                </label>
+
+                <select id="start">
+
+                    {% for location in locations %}
+
+                    <option value="{{ location }}">
+                        Location {{ location }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
+            <div class="control-group">
+
+                <label for="destination">
+                    DESTINATION
+                </label>
+
+                <select id="destination">
+
+                    {% for location in locations %}
+
+                    <option value="{{ location }}">
+                        Location {{ location }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <button
+                class="find-button"
+                onclick="findShortestPath()"
+            >
+                FIND SHORTEST PATH
+            </button>
+
+
+            <button
+                class="reset-button"
+                onclick="resetGraph()"
+            >
+                RESET
+            </button>
+
+        </section>
+
+
+        <!-- GRAPH -->
+
+        <section class="graph-section">
+
+            <div class="section-title">
+
+                <h2>ROAD NETWORK</h2>
+
+                <p>
+                    Select two locations to calculate
+                    the shortest route.
+                </p>
+
+            </div>
+
+
+            <div class="graph-container">
+
+                <!-- EDGES -->
+
+                <svg
+                    class="edges"
+                    viewBox="0 0 800 500"
+                    preserveAspectRatio="none"
+                >
+
+                    <!-- A - B -->
+
+                    <line
+                        id="edge-A-B"
+                        x1="150"
+                        y1="250"
+                        x2="300"
+                        y2="100"
+                    />
+
+                    <text
+                        x="205"
+                        y="155"
+                        class="edge-label"
+                    >
+                        4
+                    </text>
+
+
+                    <!-- A - C -->
+
+                    <line
+                        id="edge-A-C"
+                        x1="150"
+                        y1="250"
+                        x2="400"
+                        y2="300"
+                    />
+
+                    <text
+                        x="270"
+                        y="280"
+                        class="edge-label"
+                    >
+                        3
+                    </text>
+
+
+                    <!-- B - C -->
+
+                    <line
+                        id="edge-B-C"
+                        x1="300"
+                        y1="100"
+                        x2="400"
+                        y2="300"
+                    />
+
+                    <text
+                        x="365"
+                        y="195"
+                        class="edge-label"
+                    >
+                        1
+                    </text>
+
+
+                    <!-- B - D -->
+
+                    <line
+                        id="edge-B-D"
+                        x1="300"
+                        y1="100"
+                        x2="550"
+                        y2="150"
+                    />
+
+                    <text
+                        x="425"
+                        y="105"
+                        class="edge-label"
+                    >
+                        2
+                    </text>
+
+
+                    <!-- C - D -->
+
+                    <line
+                        id="edge-C-D"
+                        x1="400"
+                        y1="300"
+                        x2="550"
+                        y2="150"
+                    />
+
+                    <text
+                        x="475"
+                        y="235"
+                        class="edge-label"
+                    >
+                        5
+                    </text>
+
+
+                    <!-- C - E -->
+
+                    <line
+                        id="edge-C-E"
+                        x1="400"
+                        y1="300"
+                        x2="680"
+                        y2="300"
+                    />
+
+                    <text
+                        x="540"
+                        y="285"
+                        class="edge-label"
+                    >
+                        5
+                    </text>
+
+
+                    <!-- D - E -->
+
+                    <line
+                        id="edge-D-E"
+                        x1="550"
+                        y1="150"
+                        x2="680"
+                        y2="300"
+                    />
+
+                    <text
+                        x="630"
+                        y="215"
+                        class="edge-label"
+                    >
+                        2
+                    </text>
+
+                </svg>
+
+
+                <!-- NODES -->
+
+                <div
+                    class="node"
+                    id="node-A"
+                    style="left: 15%; top: 50%;"
+                >
+                    A
+                </div>
+
+
+                <div
+                    class="node"
+                    id="node-B"
+                    style="left: 37.5%; top: 20%;"
+                >
+                    B
+                </div>
+
+
+                <div
+                    class="node"
+                    id="node-C"
+                    style="left: 50%; top: 60%;"
+                >
+                    C
+                </div>
+
+
+                <div
+                    class="node"
+                    id="node-D"
+                    style="left: 68.75%; top: 30%;"
+                >
+                    D
+                </div>
+
+
+                <div
+                    class="node"
+                    id="node-E"
+                    style="left: 85%; top: 60%;"
+                >
+                    E
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESULT -->
+
+        <section class="result-section">
+
+            <div class="result-card">
+
+                <div class="result-label">
+                    SHORTEST PATH
+                </div>
+
+                <div
+                    id="path-result"
+                    class="path-result"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="result-card">
+
+                <div class="result-label">
+                    TOTAL DISTANCE
+                </div>
+
+                <div
+                    id="distance-result"
+                    class="distance-result"
+                >
+                    —
+                </div>
+
+                <span class="unit">
+                    KM
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ALGORITHM INFORMATION -->
+
+        <section class="info-section">
+
+            <div class="info-card">
+
+                <span class="info-title">
+                    ALGORITHM
+                </span>
+
+                <strong>
+                    Dijkstra
+                </strong>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <span class="info-title">
+                    GRAPH TYPE
+                </span>
+
+                <strong>
+                    Weighted Graph
+                </strong>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <span class="info-title">
+                    TIME COMPLEXITY
+                </span>
+
+                <strong>
+                    O(V²)
+                </strong>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <span class="info-title">
+                    SPACE COMPLEXITY
+                </span>
+
+                <strong>
+                    O(V + E)
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            PathFinder • DAA Mini Project
+
+        </footer>
+
+    </div>
+
+
+    <script
+        src="{{ url_for('static', filename='script.js') }}"
+    ></script>
+
+</body>
+
+</html>
